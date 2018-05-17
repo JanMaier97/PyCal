@@ -30,7 +30,7 @@ class Stack:
     def from_list(elements):
         """Return a stack containing the elements of the given list."""
         stack = Stack()
-        for item in elements:
+        for item in elements[::-1]:
             stack.push(item)
         return stack
 
