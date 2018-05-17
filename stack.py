@@ -26,18 +26,25 @@ class Stack:
         """Return True if the stack is empty, else return False."""
         return self.elements == []
 
-    def __repr__(self):
+    @staticmethod
+    def from_list(elements):
+        """Return a stack containing the elements of the given list."""
+        stack = Stack()
+        for item in elements:
+            stack.push(item)
+        return stack
+
+    def __str__(self):
         """Return the string representation of the stack."""
         value_str = self._stack_to_string(copy.deepcopy(self))
         line = "-" * len(value_str)
-
         return "\n".join([line, value_str, line])
 
     def _stack_to_string(self, stack):
         """Return a string of the stack values seperated by "|"."""
         value_str = " |"
         while not stack.is_empty():
-            value_str = "| " + str(stack.top()) + value_str
+            value_str = F"| {stack.top()} {value_str}"
             stack.pop()
 
         return value_str
