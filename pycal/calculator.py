@@ -6,9 +6,9 @@ from tokenize import tokenize
 
 
 class Calculator:
-    CONSTANTS = {"e", "pi"}
-    FUNCTIONS = {"sqrt", "log", "exp"}
-    OPERATIONS = {"+", "-", "*", "/", "%"}
+    CONSTANTS  = {"e", "pi"}
+    FUNCTIONS  = {"sqrt", "log", "exp"}
+    OPERATIONS = {"+", "-", "*", "/", "%", "**"}
 
     def __init__(self, expr, variables={}):
         self.tokens = Stack.from_list(tokenize(expr))
@@ -83,7 +83,7 @@ class Calculator:
         return precedence[operator]
 
     def _pop_and_evaluate(self):
-        rhs = int(self.arguments.top())
+        rhs = float(self.arguments.top())
         self.arguments.pop()
 
         op = self.operators.top()
@@ -99,7 +99,7 @@ class Calculator:
             self.arguments.push(result)
             return
 
-        lhs = int(self.arguments.top())
+        lhs = float(self.arguments.top())
         self.arguments.pop()
 
         result = 0
@@ -114,7 +114,7 @@ class Calculator:
         elif op == "%":
             result = lhs % rhs
         elif op == "**":
-            result = lhs % rhs
+            result = lhs ** rhs
         else:
             sys.exit(f"Invalid operator {op}")
 
