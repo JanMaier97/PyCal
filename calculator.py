@@ -1,25 +1,36 @@
 import sys
+import math
 
 from stack import Stack
+from tokenize import tokenize
 
 
 class Calculator:
-    def __init__(self, expr):
-        self.tokens = Stack.from_list(expr)
+    CONSTANTS = {"e", "pi"}
+    FUNCTIONS = {"sqrt", "log", "exp"}
+    OPERATIONS = {"+", "-", "*", "/", "%"}
+
+    def __init__(self, expr, variables={}):
+        self.tokens = Stack.from_list(tokenize(expr))
         self.operators = Stack()
         self.arguments = Stack()
+        self.variables = variables
 
     def evaluate(self):
         while not self.tokens.is_empty():
             self.print_()
             input()
-            if self.tokens.top().isdigit():
-                self.arguments.push(self.tokens.top())
-                self.tokens.pop()
-                continue
 
             next_operator = self.tokens.top()
             self.tokens.pop()
+
+            if next_operator in self.CONSTANTS:
+                self.arguments.push(self._get_constant(next_operator))
+                continue
+
+            if next_operator.isdigit():
+                self.arguments.push(next_operator)
+                continue
 
             if (self.operators.is_empty() or next_operator == "("):
                 self.operators.push(next_operator)
@@ -52,7 +63,7 @@ class Calculator:
             return True
         elif stack_prec == next_prec:
             if stack_op == next_op:
-                return stack_op in ["+", "-", "*", "/", "%"]
+                return stack_op in {"+", "-", "*", "/", "%"}
             return True
         return False
 
@@ -63,7 +74,11 @@ class Calculator:
                 "*": 2,
                 "/": 2,
                 "%": 2,
-                "**": 3}
+                "**": 3,
+                "exp": 4,
+                "log": 4,
+                "sqrt": 4,
+                }
         assert operator in precedence, f"Invalid operator {operator}."
         return precedence[operator]
 
@@ -71,11 +86,21 @@ class Calculator:
         rhs = int(self.arguments.top())
         self.arguments.pop()
 
-        lhs = int(self.arguments.top())
-        self.arguments.pop()
-
         op = self.operators.top()
         self.operators.pop()
+
+        if op in self.FUNCTIONS:
+            if op == "sqrt":
+                result = math.sqrt(rhs)
+            elif op == "log":
+                result = math.log(rhs)
+            elif op == "exp":
+                result = math.exp(rhs)
+            self.arguments.push(result)
+            return
+
+        lhs = int(self.arguments.top())
+        self.arguments.pop()
 
         result = 0
         if op == "+":
@@ -95,6 +120,14 @@ class Calculator:
 
         self.arguments.push(result)
 
+    def _get_constant(self, const):
+        const = const.lower()
+        assert const in self.CONSTANTS, f"Invalid constant {const}."
+        if const == "e":
+            return math.e
+        elif const == "pi":
+            return math.pi
+
     def print_(self):
         print(self.tokens)
         print(self.arguments)
@@ -102,5 +135,14 @@ class Calculator:
 
 
 if __name__ == "__main__":
-    c = Calculator("(1+2)*(3-4)")
+    # c = Calculator("(1+2)*(3-4)")
+    # print(c.evaluate())
+
+    # c = Calculator("-3 + 1")
+    # print(c.evaluate())
+
+    # c = Calculator("log(2+5)")
+    # print(c.evaluate())
+
+    c = Calculator("e + pi")
     print(c.evaluate())
