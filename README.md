@@ -12,4 +12,4 @@ The calculator as of now can evaluate the following operations:
 + log
 + exp
 + sqrt
-+ Constans: e, pi
++ Constants: e, pi
