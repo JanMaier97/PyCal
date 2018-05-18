@@ -1,4 +1,3 @@
-import sys
 import math
 
 from stack import Stack
@@ -7,8 +6,8 @@ from tokenize import tokenize
 
 class Calculator:
     CONSTANTS  = {"e", "pi"}
-    FUNCTIONS  = {"sqrt", "log", "exp"}
-    OPERATIONS = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "**": 3}            
+    FUNCTIONS  = {"sqrt": math.sqrt, "log": math.log, "exp": math.exp}
+    OPERATIONS = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "**": 3}
 
     def __init__(self, expr, variables={}):
         self._tokens = Stack.from_list(tokenize(expr))
@@ -17,6 +16,8 @@ class Calculator:
         self._variables = variables
 
     def evaluate(self):
+        """Return the result of the function or raise a SyntaxError."""
+
         while not self._tokens.is_empty():
             next_operator = self._tokens.top()
             self._tokens.pop()
@@ -47,7 +48,12 @@ class Calculator:
         while not self._operators.is_empty():
             self._pop_and_evaluate()
 
-        return self._arguments.top()
+        result = self._arguments.top()
+        self._arguments.pop()
+
+        if not self._operators.is_empty() or not self._arguments.is_empty():
+            raise SyntaxError("The function could not be computed.")
+        return result
 
     def _eval_before(self, stack_op, next_op):
         if stack_op == "(":
@@ -84,52 +90,59 @@ class Calculator:
         self._operators.pop()
 
         if op in self.FUNCTIONS:
-            if op == "sqrt":
-                result = math.sqrt(rhs)
-            elif op == "log":
-                result = math.log(rhs)
-            elif op == "exp":
-                result = math.exp(rhs)
-            self._arguments.push(result)
+            self._arguments.push(self._compute_function(rhs, op))
             return
 
         lhs = self._arguments.top()
         self._arguments.pop()
 
-        result = 0
-        if op == "+":
-            result = lhs + rhs
-        elif op == "-":
-            result = lhs - rhs
-        elif op == "*":
-            result = lhs * rhs
-        elif op == "/":
-            result = lhs / rhs
-        elif op == "%":
-            result = lhs % rhs
-        elif op == "**":
-            result = lhs ** rhs
-        else:
-            sys.exit(f"Invalid operator {op}")
+        if op in self.OPERATIONS:
+            self._arguments.push(self._compute_operation(lhs, rhs, op))
 
-        self._arguments.push(result)
+        raise ValueError("Invalid operator {op}")
 
     def _get_constant(self, const):
         const = const.lower()
         assert const in self.CONSTANTS, f"Invalid constant {const}."
+
         if const == "e":
             return math.e
         elif const == "pi":
             return math.pi
 
-    def _compute_operation(self, lhs, rhs, operator):
-        pass
+    def _compute_operation(self, lhs, rhs, op):
+        assert op in self.OPERATIONS, f"Invalid op {op}."
+
+        if op == "+":
+            return lhs + rhs
+        elif op == "-":
+            return lhs - rhs
+        elif op == "*":
+            return lhs * rhs
+        elif op == "/":
+            return lhs / rhs
+        elif op == "%":
+            return lhs % rhs
+        elif op == "**":
+            return lhs ** rhs
 
     def _compute_function(self, arg, func):
-        pass
+        """Return the result of the given func with its argument, else raise
+           an AssertError."""
+
+        assert func in self.FUNCTIONS, f"Invalid funktion {func}."
+
+        if func in self.FUNCTIONS:
+            if func == "sqrt":
+                return math.sqrt(arg)
+            elif func == "log":
+                return math.log(arg)
+            elif func == "exp":
+                return math.exp(arg)
 
     def __str__(self):
         """Return the current state as a string for pretty printing."""
+
         return (self._tokens.__str__() +
                 self._arguments.__str__() +
                 self._operators.__str__())
