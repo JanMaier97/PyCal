@@ -6,25 +6,25 @@ class Stack:
 
     def __init__(self):
         """Initialize the empty stack."""
-        self.elements = []
+        self._elements = []
 
     def pop(self):
         """Remove the top element of the stack or throw an AssertionError."""
         assert self.is_empty() is False, self.ERROR_EMPTY_STACK
-        self.elements = self.elements[:-1]
+        self._elements.pop()
 
     def top(self):
         """Return the top element of the stack or throw an AssertionError."""
         assert self.is_empty() is False, self.ERROR_EMPTY_STACK
-        return self.elements[-1]
+        return self._elements[-1]
 
     def push(self, item):
         """Add an item to the top of the stack."""
-        self.elements.append(item)
+        self._elements.append(item)
 
     def is_empty(self):
         """Return True if the stack is empty, else return False."""
-        return self.elements == []
+        return self._elements == []
 
     @staticmethod
     def from_list(elements):
@@ -48,19 +48,3 @@ class Stack:
             stack.pop()
 
         return value_str
-
-
-# simple testing
-if __name__ == "__main__":
-    print("Testing")
-
-    MAX_COUNT = 10
-
-    test_stack = Stack()
-    for i in range(MAX_COUNT):
-        test_stack.push(i + 1)
-        print(test_stack)
-
-    while not test_stack.is_empty():
-        test_stack.pop()
-        print(test_stack)
