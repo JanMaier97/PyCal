@@ -6,25 +6,9 @@ from tokenize import tokenize
 
 
 class Calculator:
-    CONSTANTS = {
-            "e",
-            "pi"
-            }
-
-    FUNCTIONS = {
-            "sqrt",
-            "log",
-            "exp",
-            }
-
-    OPERATIONS = {
-            "+": 1,
-            "-": 1,
-            "*": 2,
-            "/": 2,
-            "%": 2,
-            "**": 3,
-            }
+    CONSTANTS  = {"e", "pi"}
+    FUNCTIONS  = {"sqrt", "log", "exp"}
+    OPERATIONS = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "**": 3}            
 
     def __init__(self, expr, variables={}):
         self._tokens = Stack.from_list(tokenize(expr))
@@ -41,7 +25,7 @@ class Calculator:
                 self._arguments.push(self._get_constant(next_operator))
                 continue
 
-            if next_operator.isdigit():
+            if isinstance(next_operator, int):
                 self._arguments.push(next_operator)
                 continue
 
@@ -93,7 +77,7 @@ class Calculator:
             return self.OPERATIONS[operator]
 
     def _pop_and_evaluate(self):
-        rhs = float(self._arguments.top())
+        rhs = self._arguments.top()
         self._arguments.pop()
 
         op = self._operators.top()
@@ -109,7 +93,7 @@ class Calculator:
             self._arguments.push(result)
             return
 
-        lhs = float(self._arguments.top())
+        lhs = self._arguments.top()
         self._arguments.pop()
 
         result = 0
@@ -152,14 +136,14 @@ class Calculator:
 
 
 if __name__ == "__main__":
-    # c = Calculator("(1+2)*(3-4)")
-    # print(c.evaluate())
+    c = Calculator("(1+2)*(3-4)")
+    print(c.evaluate())
 
-    # c = Calculator("-3 + 1")
-    # print(c.evaluate())
+    c = Calculator("-3 + 1")
+    print(c.evaluate())
 
-    # c = Calculator("log(2+5)")
-    # print(c.evaluate())
+    c = Calculator("log(2+5)")
+    print(c.evaluate())
 
     c = Calculator("e + pi")
     print(c.evaluate())
